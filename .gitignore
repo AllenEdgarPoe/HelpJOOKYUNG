@@ -2,3 +2,4 @@ venv
 .idea
 tt.py
 authentication.ini
+gpt_history

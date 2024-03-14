@@ -45,4 +45,4 @@ def watch_dir(dir_path):
         observer.join()
 
 if __name__ == '__main__':
-    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result')
+    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result2')

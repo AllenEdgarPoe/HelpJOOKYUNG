@@ -29,10 +29,10 @@ def send_gpt_message(input_text, history):
         return ''
 
 def next_txt_filename(directory):
-    txt_files = [f for f in os.listdir(directory) if f.endswith('.txt')]
+    txt_files = [f for f in os.listdir(directory) if f.endswith('.md')]
     indices = [int(f.split('.')[0]) for f in txt_files]
     next_index = max(indices) + 1 if indices else 1
-    new_txt_filename = str(next_index)+'.txt'
+    new_txt_filename = str(next_index)+'.md'
     return os.path.join(directory, new_txt_filename)
 
 def write_history(file_name, chat_list):
@@ -46,6 +46,12 @@ def write_history(file_name, chat_list):
         f.write('\n---------------------------------------\n')
         f.close()
 
+def txt_to_input(input_message):
+    with open(input_message, mode='r', encoding='utf-8') as f:
+        message = f.read()
+    return message
+
+
 if __name__ == "__main__":
     end = False
     history = []
@@ -58,6 +64,8 @@ if __name__ == "__main__":
             history = []
             file_name = next_txt_filename(os.path.join('gpt_history', now))
         else:
+            if input_message.endswith('.txt'):
+                input_message = txt_to_input(input_message)
             response = send_gpt_message(input_message, history)
             print(response)
             user_chat = {"role" : "user",
