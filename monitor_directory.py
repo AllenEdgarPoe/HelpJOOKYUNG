@@ -2,32 +2,49 @@ import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import logging
-from PIL import Image
-import cv2
+import os
+import tkinter as tk
+from PIL import Image, ImageTk
+import pyautogui
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 observer = Observer()
-new_event = True
 
 class CustomEventHandler(FileSystemEventHandler):
     def on_created(self, event):
-        global new_event
         new_file = event.src_path
         if new_file.lower().endswith(('.png', '.jpg', '.jpeg')):
-            time.sleep(3)
+            time.sleep(4)
             open_image(new_file)
 
 def open_image(image_path):
-    global new_event
-    logging.info(f'Opening image: {image_path}')
-    img = cv2.imread(image_path)
-    cv2.imshow(image_path, img)
-    while True:
-        key = cv2.waitKey(1)
-        if new_event:
-            cv2.destroyWindow(image_path)
+    root = tk.Tk()
+    img = Image.open(image_path)
+    tk_img = ImageTk.PhotoImage(img)
+    tk.Label(root, image=tk_img).pack()
+
+    window_width = root.winfo_reqwidth()
+    window_height = root.winfo_reqheight()
+    position_right = int(root.winfo_screenwidth() / 2 - window_width / 2)
+    position_down = int(root.winfo_screenheight() / 2 - window_height / 2)
+
+    root.geometry("+{}+{}".format(position_right, position_down))
+
+    # pyautogui.moveTo(root.winfo_screenwidth() / 2, root.winfo_screenheight() / 2)
+    root.focus_set()
+    def on_esc(event):
+        root.destroy()
+
+    def on_delete(event):
+        os.remove(image_path)
+        print(f'Deleted image for {image_path}')
+        root.destroy()
+
+    root.bind('<End>', on_esc)
+    root.bind('<Delete>', on_delete)
+    root.mainloop()
 
 
 
@@ -36,13 +53,13 @@ def watch_dir(dir_path):
     event_handler = CustomEventHandler()
     observer.schedule(event_handler, dir_path, recursive=True)
     observer.start()
-
     try:
         while True:
             time.sleep(1)
+
     except KeyboardInterrupt:
         observer.stop()
         observer.join()
 
 if __name__ == '__main__':
-    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result2')
+    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result5')

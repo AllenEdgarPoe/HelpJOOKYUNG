@@ -1,120 +1,61 @@
-```
-class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
-        self.image_viewer = QLabel()
-        self.image_viewer.setAlignment(Qt.AlignCenter)
-        self._pixmap = QPixmap()
+'''
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import logging
+import os
+import tkinter as tk
+from PIL import Image, ImageTk
 
-        self.run_button = QtWidgets.QPushButton('Run')
-        self.run_button.clicked.connect(self.run_thread)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+observer = Observer()
+new_event = True
 
-        # Define styles
-        self.styles = ['clay', 'alien', 'random']
-        self.style_buttons = {style: QtWidgets.QRadioButton(style) for style in self.styles}
+class CustomEventHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        global new_event
+        new_file = event.src_path
+        if new_file.lower().endswith(('.png', '.jpg', '.jpeg')):
+            time.sleep(3)
+            open_image(new_file)
 
-        # Layout for buttons
-        button_layout = QtWidgets.QHBoxLayout()
-        for button in self.style_buttons.values():
-            button_layout.addWidget(button)
+def open_image(image_path):
+    root = tk.Tk()
+    img = Image.open(image_path)
+    tk_img = ImageTk.PhotoImage(img)
+    tk.Label(root, image=tk_img).pack()
 
-        button_widget = QtWidgets.QWidget()
-        button_widget.setLayout(button_layout)
+    def on_esc(event):
+        root.destroy()
 
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.image_viewer)
-        layout.addWidget(self.run_button)
-        layout.addWidget(button_widget)
+    def on_delete(event):
+        os.remove(image_path)
+        print(f'Deleted image for {image_path}')
+        root.destroy()
 
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-        self.cam_viewer = QLabel()
-        self.cam_viewer.setAlignment(Qt.AlignCenter)
-        self._cam_pixmap = QPixmap()
-
-        self.capture_button = QPushButton("Capture")
-        self.capture_button.clicked.connect(self.capture_image)
-
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.cam_viewer)  # add webcam viewer to layout
-        layout.addWidget(self.image_viewer)
-        layout.addWidget(self.run_button)
-        layout.addWidget(self.capture_button)  # add capture button to layout
-        layout.addWidget(button_widget)
-
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-        self.thread = QThread()
-        self.capture = None
-        # start capturing webcam images
-        self.start_capture()
-
-    def set_image(self, pixmap: QPixmap):
-        self._pixmap = pixmap
-        if not self._pixmap.isNull():
-            scaled_pixmap = self._pixmap.scaled(self.image_viewer.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.image_viewer.setPixmap(scaled_pixmap)
-
-    def run_thread(self, input_path):
-        self.image_thread = ImageThread(input_path)
-        self.image_thread.imageUpdate.image_signal.connect(self.set_image)
-
-        # Set style for thread
-        for style, button in self.style_buttons.items():
-            if button.isChecked():
-                self.image_thread.setImageStyle(style)
-                break
-
-        self.image_thread.start()
-
-    def start_capture(self):
-        self.capture = Capture()
-        self.capture.change_pixmap_signal.connect(self.set_cam_image)
-        self.capture.moveToThread(self.thread)
-        self.thread.started.connect(self.capture.run)
-        self.thread.start()
-
-    def set_cam_image(self, data):
-        self._cam_pixmap.loadFromData(data, "JPG")
-        self.update_cam_image()
-
-    def update_cam_image(self):
-        if not self._cam_pixmap.isNull():
-            scaled_pixmap = self._cam_pixmap.scaled(
-                self.cam_viewer.size(),
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation)
-            self.cam_viewer.setPixmap(scaled_pixmap)
-
-    def capture_image(self):
-        self._pixmap = self._cam_pixmap
-        self.update_image()
-        cv2.imwrite("test.jpg", cv2.cvtColor(np.array(self._pixmap.toImage()), cv2.COLOR_RGB2BGR))
+    root.bind('<End>', on_esc)
+    root.bind('<Delete>', on_delete)
+    root.mainloop()
 
 
-class Capture(QObject):
-    change_pixmap_signal = pyqtSignal(bytes)
 
-    def run(self):
-        self.cap = cv2.VideoCapture(0)  # capture from web cam
+def watch_dir(dir_path):
+    logging.info(f'start watching the directory {dir_path}')
+    event_handler = CustomEventHandler()
+    observer.schedule(event_handler, dir_path, recursive=True)
+    observer.start()
 
+    try:
         while True:
-            ret, frame = self.cap.read()
-            if ret:
-                rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = rgb_image.shape
-                bytes_per_line = ch * w
-                convert_to_qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
-                p = QPixmap.fromImage(convert_to_qt_format)
-                buffer = QBuffer()
-                buffer.open(QBuffer.ReadWrite)
-                self.change_pixmap_signal.emit(buffer.data().data())
-            else:
-                print("error!")
-```
-웹캠 화면이 제대로 안 들어오는거 같아. 이거 좀 고쳐줘
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+        observer.join()
 
+if __name__ == '__main__':
+    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result4')
+'''
+
+위 코드에서, 파이썬 전역 후킹을 사용해서 이미지 뷰어 창이 새로 열릴때마다 마우스 커서가 그 창 위로 가게끔 만들어줘
