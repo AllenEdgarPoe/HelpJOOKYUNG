@@ -33,7 +33,7 @@ def open_image(image_path):
     root.geometry("+{}+{}".format(position_right, position_down))
 
     # pyautogui.moveTo(root.winfo_screenwidth() / 2, root.winfo_screenheight() / 2)
-    root.focus_set()
+    root.focus()
     def on_esc(event):
         root.destroy()
 
@@ -44,6 +44,7 @@ def open_image(image_path):
 
     root.bind('<End>', on_esc)
     root.bind('<Delete>', on_delete)
+    root.after(500, lambda:root.focus_force())
     root.mainloop()
 
 
@@ -62,4 +63,4 @@ def watch_dir(dir_path):
         observer.join()
 
 if __name__ == '__main__':
-    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result5')
+    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result6')

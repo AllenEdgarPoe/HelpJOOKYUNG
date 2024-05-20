@@ -1,61 +1,7 @@
-'''
-import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import logging
-import os
-import tkinter as tk
-from PIL import Image, ImageTk
+The character in the image appears to be a young adult with a medium-length straight black hair that is styled in a bob cut with bangs that are neatly trimmed and fall just above the eyebrows. The hair is dark and appears to be well-maintained, with no visible signs of damage or discoloration.
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-observer = Observer()
-new_event = True
+The character's skin is fair, and the complexion is smooth without any visible blemishes or imperfections. The eyes are a dark shade, possibly brown or black, and are almond-shaped, which gives the character a somewhat exotic or unique appearance. The eyebrows are well-groomed and match the hair color, contributing to a harmonious look.
 
-class CustomEventHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        global new_event
-        new_file = event.src_path
-        if new_file.lower().endswith(('.png', '.jpg', '.jpeg')):
-            time.sleep(3)
-            open_image(new_file)
+The character's lips are full and appear to be a natural pink color, with a slight pout that suggests a sense of confidence or self-assuredness. The mouth is slightly open, as if the character is in the middle of speaking or expressing surprise.
 
-def open_image(image_path):
-    root = tk.Tk()
-    img = Image.open(image_path)
-    tk_img = ImageTk.PhotoImage(img)
-    tk.Label(root, image=tk_img).pack()
-
-    def on_esc(event):
-        root.destroy()
-
-    def on_delete(event):
-        os.remove(image_path)
-        print(f'Deleted image for {image_path}')
-        root.destroy()
-
-    root.bind('<End>', on_esc)
-    root.bind('<Delete>', on_delete)
-    root.mainloop()
-
-
-
-def watch_dir(dir_path):
-    logging.info(f'start watching the directory {dir_path}')
-    event_handler = CustomEventHandler()
-    observer.schedule(event_handler, dir_path, recursive=True)
-    observer.start()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-        observer.join()
-
-if __name__ == '__main__':
-    watch_dir(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result4')
-'''
-
-위 코드에서, 파이썬 전역 후킹을 사용해서 이미지 뷰어 창이 새로 열릴때마다 마우스 커서가 그 창 위로 가게끔 만들어줘
+The character is wearing a black top with a high neckline, which contrasts with the light-colored background, making the character stand out. The top appears to be made of a smooth fabric, possibly a knit material, and fits snugly around the shoulders and chest, suggesting a form-fitting style.

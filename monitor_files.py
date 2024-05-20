@@ -10,7 +10,6 @@ def open_image(image_path):
     root = tk.Tk()
     img = Image.open(image_path)
     tk_img = ImageTk.PhotoImage(img)
-    tk.Label(root, image=tk_img).pack()
 
     def on_esc(event):
         root.destroy()
@@ -20,10 +19,12 @@ def open_image(image_path):
         print(f'Deleted image for {image_path}')
         root.destroy()
 
+    label = tk.Label(root, image=tk_img)
+    label.pack()
     root.bind('<End>', on_esc)
     root.bind('<Delete>', on_delete)
+    root.after(500, lambda:root.focus_force())
     root.mainloop()
-
 def main(root_dir):
     for dir_path, dirs, files in os.walk(root_dir):
         file_list = glob.glob(os.path.join(dir_path, '*.png'))
@@ -32,6 +33,5 @@ def main(root_dir):
                 open_image(file)
 
 
-
 if __name__=='__main__':
-    main(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result4')
+    main(r'C:\Users\chsjk\PycharmProjects\ProjectBlueHouse\result6')
