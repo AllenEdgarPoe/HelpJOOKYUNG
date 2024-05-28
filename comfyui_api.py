@@ -18,7 +18,7 @@ config_file = os.getcwd()
 setting = configparser.ConfigParser()
 # setting.read('config.ini')
 # server_address = setting['COMFYUI']['address']
-server_address = '127.0.0.1:8188'
+server_address = '127.0.0.1:8189'
 client_id = str(uuid.uuid4())
 
 mask_path = r'C:\Users\chsjk\Downloads\photox\mask'
@@ -151,10 +151,35 @@ def transform_image(workflow_path, input_path, save_path):
         print(e)
 
 
+def backendcache_api(filename, workflow_path, mode):
+    try:
+        with open(workflow_path, 'r', encoding='utf-8') as f:
+            prompt = json.load(f)
+
+        # put input path
+        prompt['105']['inputs']['image'] = filename
+
+        model_key = mode
+        pos_key = mode + '_pos'
+        neg_key = mode + '_neg'
+        prompt['101']['inputs']['key'] = model_key
+        prompt['102']['inputs']['key'] = pos_key
+        prompt['103']['inputs']['key'] = neg_key
+
+        ws = websocket.WebSocket()
+        ws.connect("ws://{}/ws?clientId={}".format(server_address, client_id))
+        file_name = get_images(ws, prompt)
+        return
+
+    except Exception as e:
+        print(e)
+
+
+
 if __name__ == '__main__':
-    img_dir = r'C:\Users\chsjk\Downloads\photox\mask'
-    for img in os.listdir(img_dir):
-        img_path = os.path.join(img_dir, img)
-        transform_image(r'C:\Users\chsjk\Downloads\photox\workflow\photox_background_api.json', img_path, r'C:\Users\chsjk\Downloads\photox\result')
+    path = r'C:\Users\chsjk\Documents\data\real_face\xorbis'
+    img = os.path.join(path, '5.jpg')
+    for mode in ['harrypotteranime', 'clay', 'lineart']:
+        backendcache_api(img,r'C:\Users\chsjk\PycharmProjects\photox\workflow_new\1인portrait\backend_cache_api.json', mode)
 
 

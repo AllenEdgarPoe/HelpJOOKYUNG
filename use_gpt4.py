@@ -58,7 +58,7 @@ def send_gpt_message(input_text, history):
              "content": input_text}
         )
         key = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages = message
         )
         response = key['choices'][0]['message']['content']
