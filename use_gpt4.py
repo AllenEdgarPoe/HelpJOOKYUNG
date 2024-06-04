@@ -1,15 +1,17 @@
+import base64
 import os
 import datetime
-import openai
+from openai import OpenAI
 import configparser
 import time
 
 properties = configparser.ConfigParser()
 properties.read('authentication.ini')
-openai.api_key = properties['GPT_AUTH']['api_key']
+os.environ["OPENAI_API_KEY"] = properties['GPT_AUTH']['api_key']
 now = datetime.datetime.now().strftime('%Y-%m-%d')
 os.makedirs(os.path.join('gpt_history', now), exist_ok=True)
 
+client = OpenAI()
 
 def send_gpt_message2(input_text, history):
     try:
@@ -47,21 +49,39 @@ The overall fashion style depicted in the image is a mix of edgy and sophisticat
         print(e)
         return ''
 
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
-def send_gpt_message(input_text, history):
+def send_gpt_message(input_text, history, input_image_path=None):
     try:
         message = []
         if history!=[]:
             message.extend(history)
-        message.append(
-            {"role" : "user",
-             "content": input_text}
-        )
-        key = openai.ChatCompletion.create(
+
+        if input_image_path != '':
+            img = encode_image(input_image_path)
+            message.extend([
+                {"role": "system",
+                 "content": input_text},
+                {"role": "user",
+                 "content": [
+                     {"type": "image_url",
+                      "image_url": {
+                          "url": f'data:image/png;base64,{img}'
+                      }}
+                 ]}
+            ])
+        else:
+            message.append(
+                {"role" : "user",
+                 "content": input_text}
+            )
+        key = client.chat.completions.create(
             model="gpt-4o",
             messages = message
         )
-        response = key['choices'][0]['message']['content']
+        response = key.choices[0].message.content
         return response
     except Exception as e:
         print(e)
@@ -98,6 +118,7 @@ if __name__ == "__main__":
     file_name = next_txt_filename(os.path.join('gpt_history', now))
     while not end:
         input_message = input('원하는 걸 입력하시오: ')
+        img_message = input('이미지 path를 입력하시오: ')
         if input_message == 'exit':
             end = True
         elif input_message == 'new_session':
@@ -106,7 +127,7 @@ if __name__ == "__main__":
         else:
             if input_message.endswith('.txt'):
                 input_message = txt_to_input(input_message)
-            response = send_gpt_message2(input_message, history)
+            response = send_gpt_message(input_message, history, img_message)
             print(response)
             user_chat = {"role" : "user",
                         "content" : input_message}

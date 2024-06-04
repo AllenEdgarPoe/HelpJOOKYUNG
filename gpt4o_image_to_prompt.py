@@ -15,33 +15,35 @@ def encode_image(image_path):
 
 client = OpenAI()
 
-file_path = r'C:\Users\chsjk\Documents\data\미래서울도시관\processed'
+dir_path = r'C:\Users\chsjk\Documents\data\해양박물관\processed'
 suffixes = ('.jpg', '.png')
 with open('guide.txt', 'r', encoding='utf-8') as f:
     guide = f.read()
 
-for file in os.listdir(file_path):
-    if file.endswith(suffixes):
-        path = os.path.join(file_path, file)
-        img = encode_image(path)
-        messages = [
-            {"role": "system",
-             "content" : guide},
-            {"role" : "user",
-             "content" : [
-                 {"type": "image_url",
-                  "image_url" :{
-                      "url": f'data:image/png;base64,{img}'
-                  }}
-             ]}
-        ]
-        response = client.chat.completions.create(
-            model='gpt-4o',
-            messages=messages,
-            temperature=0.0
-        )
+for dir in os.listdir(dir_path):
+    file_path = os.path.join(dir_path, dir)
+    for file in os.listdir(file_path):
+        if file.endswith(suffixes):
+            path = os.path.join(file_path, file)
+            img = encode_image(path)
+            messages = [
+                {"role": "system",
+                 "content" : guide},
+                {"role" : "user",
+                 "content" : [
+                     {"type": "image_url",
+                      "image_url" :{
+                          "url": f'data:image/png;base64,{img}'
+                      }}
+                 ]}
+            ]
+            response = client.chat.completions.create(
+                model='gpt-4o',
+                messages=messages,
+                temperature=0.0
+            )
 
-        description = response.choices[0].message.content
+            description = response.choices[0].message.content
 
-        with open(os.path.join(file_path, 'description.txt'), mode='a', encoding='utf-8') as f:
-            f.write(f'{file} : {description}\n')
+            with open(os.path.join(file_path, 'description.txt'), mode='a', encoding='utf-8') as f:
+                f.write(f'{file} : {description}\n')

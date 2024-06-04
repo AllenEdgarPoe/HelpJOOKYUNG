@@ -21,13 +21,7 @@ setting = configparser.ConfigParser()
 server_address = '127.0.0.1:8189'
 client_id = str(uuid.uuid4())
 
-path = r'C:\Users\chsjk\Documents\data\AI서울 참고이미지\processed'
-with open(os.path.join(path, 'description.json'), 'r', encoding='utf-8') as f:
-    description = json.load(f)
-key_list = list(description.keys())
-for key in key_list:
-    if not os.path.exists(os.path.join(path, key)):
-        key_list.remove(key)
+
 
 
 def get_images(ws, prompt):
@@ -52,17 +46,17 @@ def queue_prompt(prompt):
 
 def make_prompt_video(landmarks):
     prompt = f'"0":"{description[landmarks[0]]}",\n' \
-             f'"25":"{description[landmarks[1]]}",\n' \
-             f'"50":"{description[landmarks[2]]}",\n' \
-             f'"75":"{description[landmarks[3]]}",\n' \
-             f'"100":"{description[landmarks[0]]}",\n'
+             f'"225":"{description[landmarks[1]]}",\n' \
+             f'"550":"{description[landmarks[2]]}",\n' \
+             f'"775":"{description[landmarks[3]]}",\n' \
+             f'"900":"{description[landmarks[0]]}",\n'
     return prompt
 
 def randomize_seed(prompt, node_id):
     prompt[node_id]['inputs']['seed'] = random.randint(1,4294967294)
     return prompt
 
-def transform_image(workflow_path):
+def transform_image(workflow_path, path, key_list):
     try:
         with open(workflow_path, 'r', encoding='utf-8') as f:
             prompt = json.load(f)
@@ -75,16 +69,12 @@ def transform_image(workflow_path):
         img4 = os.path.join(path, landmarks[3])
 
         # put input path
-        prompt['133']['inputs']['image'] = img1
-        prompt['134']['inputs']['image'] = img2
-        prompt['135']['inputs']['image'] = img3
-        prompt['136']['inputs']['image'] = img4
-        prompt['140']['inputs']['image'] = img1
+        prompt['27']['inputs']['image_path'] = ','.join([img1,img2,img3,img4])
 
         # make prompt
-        prompt['119']['inputs']['text'] = prompt_txt
+        prompt['15']['inputs']['text'] = prompt_txt
 
-        randomize_seed(prompt, '69')
+        randomize_seed(prompt, '17')
 
         ws = websocket.WebSocket()
         ws.connect("ws://{}/ws?clientId={}".format(server_address, client_id))
@@ -96,7 +86,23 @@ def transform_image(workflow_path):
 
 
 if __name__ == '__main__':
-    workflow_path = r'C:\Users\chsjk\PycharmProjects\ComfyUI_windows_portable\ComfyUI\work__flow\symphony\10sec_video_api.json'
-    for _ in range(10):
-        transform_image(workflow_path)
+    workflow_path = r'C:\Users\chsjk\PycharmProjects\ComfyUI_windows_portable\ComfyUI\work__flow\symphony\marinemuseum900_api.json'
+    parent_path = r'C:\Users\chsjk\Documents\data\해양박물관\processed'
+    for pp in os.listdir(parent_path):
+        if pp in ['8. 아름답고 신비로운 북극에서 행복하게 살고있는 북극곰', '9. 위기의 극지대를 탐사하는 해양탐사 로봇']:
+            print(pp)
+            try:
+                path = os.path.join(parent_path, pp)
+                with open(os.path.join(path, 'description.json'), 'r', encoding='utf-8') as f:
+                    description = json.load(f)
+                key_list = list(description.keys())
+                for key in key_list:
+                    if not os.path.exists(os.path.join(path, key)):
+                        key_list.remove(key)
+                transform_image(workflow_path, path, key_list)
+            except Exception as e:
+                print(e)
+                continue
+
+
 
