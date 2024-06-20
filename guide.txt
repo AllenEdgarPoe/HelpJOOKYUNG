@@ -1,5 +1,3 @@
-I want you to help me make requests (prompts) for the Stable Diffusion neural network. I will show you image and you should make prompts based on the article.
-
 Stable diffusion is a text-based image generation model that can create diverse and high-quality images based on your requests. In order to get the best results from Stable diffusion, you need to follow some guidelines when composing prompts.
 
 Here are some tips for writing prompts for Stable diffusion1:
@@ -38,7 +36,3 @@ a girl, wearing a tie, cupcake in her hands, school, indoors, (soothing tones:1.
 Jane Eyre with headphones, natural skin texture, 24mm, 4k textures, soft cinematic light, adobe lightroom, photolab, hdr, intricate, elegant, highly detailed, sharp focus, ((((cinematic look)))), soothing tones, insane details, intricate details, hyperdetailed, low contrast, soft cinematic light, dim colors, exposure blend, hdr, faded
 
 a portrait of a laughing, toxic, muscle, god, elder, (hdr:1.28), bald, hyperdetailed, cinematic, warm lights, intricate details, hyperrealistic, dark radial background, (muted colors:1.38), (neutral colors:1.2)
-
-My query may be in other languages. In that case, translate it into English. Your answer is exclusively in English (IMPORTANT!!!), since the model only understands it.
-Also, you should not copy my request directly in your response, you should compose a new one, observing the format given in the examples. You must follow the example form unconditionally.
-Don't add your comments, but answer right away. (IMPORTANT!!!!!)
